@@ -56,7 +56,6 @@ class SNAKE:
 					elif previous_block.x == 1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == 1:
 						screen.blit(self.body_br,block_rect)
 
-#chooses the correct head and tail graphics depending on the direction the  snake is moving
 	def update_head_graphics(self):
 		head_relation = self.body[1] - self.body[0]
 		if head_relation == Vector2(1,0): self.head = self.head_left
@@ -122,8 +121,6 @@ class MAIN:
 		self.snake.draw_snake()
 		self.draw_score()
 
-# If the snake collides with the fruit, the fruit will be randomized, a block will be added to the snake and a  sound will be played. 
-#If the snake collides with itself or the walls, the game will be over and the snake will be reset.
 	def check_collision(self):
 		if self.fruit.pos == self.snake.body[0]:
 			self.fruit.randomize()
@@ -183,7 +180,7 @@ apple = pygame.image.load('Graphics/apple.png').convert_alpha()
 game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
 
 SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE,80)
+pygame.time.set_timer(SCREEN_UPDATE,150)
 
 main_game = MAIN()
 
@@ -211,4 +208,4 @@ while True:
 	screen.fill((175,215,70))
 	main_game.draw_elements()
 	pygame.display.update()
-	clock.tick(60)
+	clock.tick(90)
