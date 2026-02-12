@@ -4,7 +4,7 @@ from pygame.math import Vector2
 class SNAKE:
     def __init__(self):
         self.reset()
-        # Graphics
+        # Loading all graphics
         self.head_up = pygame.image.load('Graphics/head_up.png').convert_alpha()
         self.head_down = pygame.image.load('Graphics/head_down.png').convert_alpha()
         self.head_right = pygame.image.load('Graphics/head_right.png').convert_alpha()
@@ -109,7 +109,6 @@ class MAIN:
         self.snake = SNAKE()
         self.fruit = FRUIT()
         self.game_active = True
-        self.high_score = 0 
 
     def update(self):
         if self.game_active:
@@ -123,7 +122,7 @@ class MAIN:
         self.snake.draw_snake()
         self.draw_score()
         if not self.game_active:
-            self.draw_game_over_screen()
+            self.draw_game_over()
 
     def check_collision(self):
         if self.fruit.pos == self.snake.body[0]:
@@ -144,10 +143,6 @@ class MAIN:
                 self.game_over()
         
     def game_over(self):
-        # Update high score in memory
-        current_score = len(self.snake.body) - 3
-        if current_score > self.high_score:
-            self.high_score = current_score
         self.game_active = False
 
     def restart_game(self):
@@ -157,10 +152,16 @@ class MAIN:
     def draw_grass(self):
         grass_color = (167,209,61)
         for row in range(cell_number):
-            for col in range(cell_number):
-                if (row + col) % 2 == 0:
-                    grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
-                    pygame.draw.rect(screen, grass_color, grass_rect)
+            if row % 2 == 0: 
+                for col in range(cell_number):
+                    if col % 2 == 0:
+                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                        pygame.draw.rect(screen, grass_color, grass_rect)
+            else:
+                for col in range(cell_number):
+                    if col % 2 != 0:
+                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                        pygame.draw.rect(screen, grass_color, grass_rect)            
 
     def draw_score(self):
         score_text = str(len(self.snake.body) - 3)
@@ -176,31 +177,24 @@ class MAIN:
         screen.blit(apple, apple_rect)
         pygame.draw.rect(screen, (56,74,12), bg_rect, 2)
 
-    def draw_game_over_screen(self):
-        # Background Overlay
+    def draw_game_over(self):
+        # Semi-transparent overlay
         overlay = pygame.Surface((cell_number * cell_size, cell_number * cell_size))
-        overlay.set_alpha(150)
-        overlay.fill((0, 0, 0))
+        overlay.set_alpha(140)
+        overlay.fill((20, 20, 20))
         screen.blit(overlay, (0,0))
 
-        # Fonts and Scores
-        current_score = len(self.snake.body) - 3
+        # Text Setup
+        over_surf = game_font.render("GAME OVER", True, (255, 255, 255))
+        over_rect = over_surf.get_rect(center=(cell_number * cell_size // 2, cell_number * cell_size // 2 - 20))
         
-        title_surf = game_font.render("GAME OVER", True, (255, 255, 255))
-        score_surf = game_font.render(f"Score: {current_score}", True, (255, 255, 255))
-        high_surf = game_font.render(f"High Score: {self.high_score}", True, (255, 215, 0)) # Golden color
-        hint_surf = game_font.render("Press SPACE to Restart", True, (200, 200, 200))
+        restart_surf = game_font.render("Press SPACE to Play Again", True, (255, 255, 255))
+        restart_rect = restart_surf.get_rect(center=(cell_number * cell_size // 2, cell_number * cell_size // 2 + 30))
 
-        # Center positions
-        center_x = (cell_number * cell_size) // 2
-        center_y = (cell_number * cell_size) // 2
+        screen.blit(over_surf, over_rect)
+        screen.blit(restart_surf, restart_rect)
 
-        screen.blit(title_surf, title_surf.get_rect(center=(center_x, center_y - 60)))
-        screen.blit(score_surf, score_surf.get_rect(center=(center_x, center_y - 10)))
-        screen.blit(high_surf, high_surf.get_rect(center=(center_x, center_y + 30)))
-        screen.blit(hint_surf, hint_surf.get_rect(center=(center_x, center_y + 90)))
-
-# Boilerplate Init
+# Initial Setup
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 cell_size = 40
@@ -211,10 +205,11 @@ apple = pygame.image.load('Graphics/apple.png').convert_alpha()
 game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
 
 SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE, 90)
+pygame.time.set_timer(SCREEN_UPDATE, 150)
 
 main_game = MAIN()
 
+# Main Game Loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -225,9 +220,11 @@ while True:
             main_game.update()
             
         if event.type == pygame.KEYDOWN:
+            # Check for space to restart if game is over
             if event.key == pygame.K_SPACE and not main_game.game_active:
                 main_game.restart_game()
 
+            # Snake movement - only if game is active
             if main_game.game_active:
                 if event.key == pygame.K_UP and main_game.snake.direction.y != 1:
                     main_game.snake.direction = Vector2(0,-1)
