@@ -28,7 +28,6 @@ class SNAKE:
         self.update_head_graphics()
         self.update_tail_graphics()
 
-#Draw each block of the snake with the appropriate sprite based on its position and relation to neighboring blocks
         for index, block in enumerate(self.body):
             x_pos = int(block.x * cell_size)
             y_pos = int(block.y * cell_size)
@@ -46,7 +45,6 @@ class SNAKE:
                 elif previous_block.y == next_block.y:
                     screen.blit(self.body_horizontal, block_rect)
                 else:
-                    #Determine the correct corner sprite to use based on the location of the previous and next blocks
                     if previous_block.x == -1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == -1:
                         screen.blit(self.body_tl, block_rect)
                     elif previous_block.x == -1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == -1:
@@ -71,7 +69,7 @@ class SNAKE:
         elif tail_relation == Vector2(0,1): self.tail = self.tail_up
         elif tail_relation == Vector2(0,-1): self.tail = self.tail_down
 
-#Move the snake by adding a new head in the direction of movement and removing the tail unless a new block is being added
+
     def move_snake(self):
         if self.direction != Vector2(0,0):
             if self.new_block:
@@ -135,11 +133,10 @@ class MAIN:
             self.fruit.randomize()
             self.snake.add_block()
             self.snake.play_crunch_sound()
-# If the fruit spawns on the snake's body, randomize its position 
+
         for block in self.snake.body[1:]:
             if block == self.fruit.pos:
                 self.fruit.randomize()
-
 
     def check_fail(self):
         if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number:
@@ -150,9 +147,7 @@ class MAIN:
                 self.game_over()
         
     def game_over(self):
-
         # Update high score in memory
-
         current_score = len(self.snake.body) - 3
         if current_score > self.high_score:
             self.high_score = current_score
@@ -171,7 +166,6 @@ class MAIN:
                     grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
                     pygame.draw.rect(screen, grass_color, grass_rect)
 
-#Display the current score 
     def draw_score(self):
         score_text = str(len(self.snake.body) - 3)
         score_surface = game_font.render(score_text, True, (56,74,12))
@@ -210,7 +204,7 @@ class MAIN:
         screen.blit(high_surf, high_surf.get_rect(center=(center_x, center_y + 30)))
         screen.blit(hint_surf, hint_surf.get_rect(center=(center_x, center_y + 90)))
 
-#Set sound settings 
+
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 cell_size = 40
